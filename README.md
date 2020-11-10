@@ -103,6 +103,6 @@ def model_regression(country,days_number=100):
     print('\n**********Polynomial Regression:**********\n')
     print(f'Predicted number of total cases for {days_number} days from today ({today_date}) is {int(mymodel(days_number+delta)):,}')
     print(f'R-Suared score is: {r_sq_p:.2}\n')
- 
-# calling function model_regression which return situation in Ireland in 150 days
+
+# Calling a function model_regression which returns regression models and information about the situation in 150 days
 model_regression('Ireland',150)
