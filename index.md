@@ -9,21 +9,82 @@ Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://j
 Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
 
 ```markdown
-Syntax highlighted code block
+# create a list of all countries (locations)
 
-# Header 1
-## Header 2
-### Header 3
+def dataframe_intervals(interval_input = 20_000):
 
-- Bulleted
-- List
+    all_locations = covid.location.unique()
 
-1. Numbered
-2. List
+    interval_series = []
+    days_number_concat = []
 
-**Bold** and _Italic_ and `Code` text
+    for loc in all_locations:
 
-[Link](url) and ![Image](src)
+        location = covid[covid['location'] == loc]
+        location = location.fillna(0)
+
+        total_cases = location['total_cases']
+        date = location['date']
+
+        def intervals (interval):
+            '''Function returns list of intervals'''
+            intervals = ([x for x in range(interval, int(max(total_cases)),interval)])
+            intervals.insert(0,1)
+            return intervals
+
+        days_number = [None] * len(total_cases)
+
+        for cases_value in total_cases:
+            interval_list = intervals(interval_input)
+
+            if len(interval_list) == 1:
+                if cases_value == 0:
+                    interval_series.append(0)
+                    #break
+                else:
+                    interval_series.append(1)
+                    #break
+
+            if len(interval_list) > 1:
+            #else:
+                for index in range(0,len(interval_list)-1):
+                    if cases_value == 0:
+                        interval_series.append(0)
+                        break
+                    elif cases_value in pd.Interval(left=interval_list[index], 
+                                                    right=interval_list[index+1], 
+                                                    closed='left'):
+                        interval_series.append(interval_list[index])
+                        break
+                    # values which are higher then limit of last section
+                    elif cases_value > interval_list[-1]:
+                        interval_series.append(interval_list[-1])
+                        break
+        import numpy as np
+
+        # Create numpy array with interval series and frequencies how many times are in data frame for selected country
+        freq = np.unique(interval_series, return_counts=True)
+
+        # add number of days to None value list in correct index position
+        sum_days = 0
+        for days in freq[1]:
+            sum_days+=days
+            try:
+                days_number[sum_days]=days
+            except IndexError:
+                break
+        days_number_concat = np.concatenate((days_number_concat,days_number))
+
+   # add last value to the list if length of two lists is different
+    if (len(interval_series)-len(days_number_concat)!=0):
+            interval_series.append(1)
+    else:
+        pass
+
+    # Add two new columns to data frame
+    covid['interval_series'] = interval_series
+    covid['days_number'] = days_number_concat
+    return covid
 ```
 
 For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
